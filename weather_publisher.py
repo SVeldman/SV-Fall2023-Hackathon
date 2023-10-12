@@ -2,8 +2,6 @@ pip install pyensign
 
 from pyensign.ensign import Ensign
 
-client = Ensign(client_id=<>, client_secret=<>)
-
 import json
 import asyncio
 import warnings
@@ -64,23 +62,29 @@ class WeatherPublisher:
             When querying the NOAA API, as a courtesy, they like you to identify your
             app and contact info (aka User Agent details)
         """
-        self.topic = topic
-        self.interval = interval
-        self.locations = locations
+
+        # Pretty sure I did the API key right, but need help with some of these other parameters. Define as variables? Just plug in here?
+        self.topic = topic #name of topic as I set it up in ensign? "weather_forcasts-JSON"
+        self.interval = interval #3600 for 1 hour
+        self.locations = locations #LOCS?
         self.url = "https://api.weather.gov/points/"
-        self.user = {"User-Agent": user}
-        self.datatype = "application/json"
+        self.user = {"User-Agent": user} #what do I use as my "user" name?
+        self.datatype = "application/json" #this is just telling the publisher to store everything as json?
 
-        # NOTE: If you need a client_id and client_secret, register for a free account
-        # at: https://rotational.app/register
+        keys = self.load_keys()
 
-        # Start a connection to the Ensign server. If you do not supply connection
-        # details, PyEnsign will read them from your environment variables.
-        self.ensign = Ensign()
-
-        # Alternatively you can supply `client_id` & `client_secret` as string args, eg
-        # self.ensign = Ensign(client_id="your_client_id", client_secret="your_secret")
-
+        self.ensign = Ensign(
+            client_id=keys["ClientID"],
+            client_secret=keys["ClientSecret"]
+        )
+    
+    def _load_keys(self):
+        try:
+            f = open("client.json")
+            return json.load(f)
+        except Exception as e:
+            raise OSError(f"unable to load Ensign API keys from file: ", e)
+    
     async def print_ack(self, ack):
         """
         Enable the Ensign server to notify the Publisher the event has been acknowledged
@@ -208,11 +212,16 @@ class WeatherPublisher:
         for period in periods:
             # There's a lot available! For this example, we'll just parse out a few
             # fields from the NOAA API response:
+            # "probabilityOfPrecipitation", "dewpoint", and "relativeHumidity" have nested dictionaries - will this still work as written?
             data = {
                 "name": period.get("name", None),
                 "summary": period.get("shortForecast", None),
                 "temperature": period.get("temperature", None),
                 "units": period.get("temperatureUnit", None),
+                "precipitation": period.get("probabilityOfPrecipitation", None),
+                "dewpoint": period.get("dewpoint", None),
+                "humidity": period.get("relativeHumidity", None),
+                "windspeed": period.get("windSpeed", None),
                 "daytime": period.get("isDaytime", None),
                 "start": period.get("startTime", None),
                 "end": period.get("endTime", None),
@@ -225,4 +234,4 @@ if __name__ == "__main__":
     publisher = WeatherPublisher()
     publisher.run()
     
-    
+ # Where do I build the actual model? Do I need to now publish from my topic, outputting the information from the model?   
