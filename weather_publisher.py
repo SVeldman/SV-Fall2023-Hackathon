@@ -2,6 +2,7 @@ pip install pyensign
 
 from pyensign.ensign import Ensign
 
+import os
 import json
 import asyncio
 import warnings
@@ -15,8 +16,11 @@ from pyensign.ensign import Ensign
 #Do I need this?
 warnings.filterwarnings("ignore")
 
-# TODO: replace with YOU - your email and app details :)
-ME = "(https://rotational.io/data-playground/noaa/, weather@rotational.io)"
+ME = "(https://rotational.io/data-playground/noaa/, veldman@uchicago.edu)"
+# Can we leave the data playground as the app URL? Or should this be a UChicago site or my GitHUb?
+
+"""
+Changed code to load location from json; to use manual locations change "self.locations = self.load_cities()" to "self.locations = self.LOCS" under parameters for def __init__
 
 LOCS = {
     "new_york": {"lat": "40.7127837", "long": "-74.0059413"},
@@ -32,6 +36,8 @@ LOCS = {
     "austin": {"lat": "30.267153", "long": "-97.7430608"},
     "indianapolis": { "lat": "39.768403", "long": "-86.158068"},
 }
+"""
+
 
 class WeatherPublisher:
     """
@@ -66,7 +72,7 @@ class WeatherPublisher:
         # Pretty sure I did the API key right, but need help with some of these other parameters. Define as variables? Just plug in here?
         self.topic = topic #name of topic as I set it up in ensign? "weather_forcasts-JSON"
         self.interval = interval #3600 for 1 hour
-        self.locations = locations #LOCS?
+        self.locations = self.load_cities()
         self.url = "https://api.weather.gov/points/"
         self.user = {"User-Agent": user} #what do I use as my "user" name?
         self.datatype = "application/json" #this is just telling the publisher to store everything as json?
@@ -85,6 +91,20 @@ class WeatherPublisher:
         except Exception as e:
             raise OSError(f"unable to load Ensign API keys from file: ", e)
     
+    def _load_cities(self):
+        cities = dict()
+        try:
+            f = open(os.path.join("cities.json"))
+            json_lines = json.load(f)
+            for l in json_lines:
+                cities[l["city"]] = {
+                    "lat": str(l["latitude"]),
+                    "long": str(l["longitude"])
+                }
+            return cities
+        except Exception as e:
+            raise OSError(f"unable to load cities from file: ", e)
+
     async def print_ack(self, ack):
         """
         Enable the Ensign server to notify the Publisher the event has been acknowledged
@@ -105,7 +125,7 @@ class WeatherPublisher:
         """
         print(f"Event was not committed with error {nack.code}: {nack.error}")
 
-    def compose_query(self, location):
+    def compose_query(self, location): #location = citites ?
         """
         Combine the base URI with the lat/long query params
 
@@ -218,9 +238,9 @@ class WeatherPublisher:
                 "summary": period.get("shortForecast", None),
                 "temperature": period.get("temperature", None),
                 "units": period.get("temperatureUnit", None),
-                "precipitation": period.get("probabilityOfPrecipitation", None),
-                "dewpoint": period.get("dewpoint", None),
-                "humidity": period.get("relativeHumidity", None),
+                "precipitation": period.get("probabilityOfPrecipitation", None), # "precipitation": period.get("probabilityOfPrecipitation": "value", None)?
+                "dewpoint": period.get("dewpoint", None), #"dewpoint": period.get("dewpoint": "value", None)?
+                "humidity": period.get("relativeHumidity", None), #"humidity": period.get("relativeHumidity": "value", None)?
                 "windspeed": period.get("windSpeed", None),
                 "daytime": period.get("isDaytime", None),
                 "start": period.get("startTime", None),

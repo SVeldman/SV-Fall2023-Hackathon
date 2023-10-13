@@ -56,3 +56,5 @@ class WeatherSubscriber:
 if __name__ == "__main__":
     subscriber = WeatherSubscriber()
     subscriber.run()
+
+    
