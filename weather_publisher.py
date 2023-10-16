@@ -1,5 +1,3 @@
-pip install pyensign
-
 from pyensign.ensign import Ensign
 
 import os
@@ -44,7 +42,7 @@ class WeatherPublisher:
     WeatherPublisher queries an API for weather updates and publishes events to Ensign.
     """
 
-    def __init__(self, topic="noaa-reports-json", interval=60, locations=LOCS, user=ME):
+    def __init__(self, topic="weather_forcasts-JSON", interval=60, user=ME):
         """
         Initialize a WeatherPublisher by specifying a topic, locations, and other user-
         defined parameters.
@@ -70,14 +68,14 @@ class WeatherPublisher:
         """
 
         # Pretty sure I did the API key right, but need help with some of these other parameters. Define as variables? Just plug in here?
-        self.topic = topic #name of topic as I set it up in ensign? "weather_forcasts-JSON"
-        self.interval = interval #3600 for 1 hour
-        self.locations = self.load_cities()
+        self.topic = topic
+        self.interval = interval
+        self.locations = self._load_cities() #add "_"?
         self.url = "https://api.weather.gov/points/"
         self.user = {"User-Agent": user} #what do I use as my "user" name?
-        self.datatype = "application/json" #this is just telling the publisher to store everything as json?
+        self.datatype = "application/json"
 
-        keys = self.load_keys()
+        keys = self._load_keys() #add "_"?
 
         self.ensign = Ensign(
             client_id=keys["ClientID"],
@@ -98,6 +96,7 @@ class WeatherPublisher:
             json_lines = json.load(f)
             for l in json_lines:
                 cities[l["city"]] = {
+                    #"city": str(l["city"]),############################################# I think this is redundant because "city" is already captured in the inner/nested dictionary
                     "lat": str(l["latitude"]),
                     "long": str(l["longitude"])
                 }
@@ -125,7 +124,7 @@ class WeatherPublisher:
         """
         print(f"Event was not committed with error {nack.code}: {nack.error}")
 
-    def compose_query(self, location): #location = citites ?
+    def compose_query(self, location): ############################################################ How to make sure the city gets attached to the query results?
         """
         Combine the base URI with the lat/long query params
 
@@ -173,6 +172,7 @@ class WeatherPublisher:
                 response = requests.get(query).json()
                 forecast_url = self.parse_forecast_link(response)
                 forecast = requests.get(forecast_url).json()
+                #city = location.get("city", None)########################################## Trying to attach city to query results. not sure if this belongs here?
 
                 # After we retrieve and unpack the full hourly forecast, we can publish
                 # each period of the forecast as a new event
@@ -186,7 +186,7 @@ class WeatherPublisher:
                     )
             await asyncio.sleep(self.interval)
 
-    def parse_forecast_link(self, message):
+    def parse_forecast_link(self, message): ################################################ preliminary forecast response does have city/state info, is this where we grab it?
         """
         Parse a preliminary forecast response from the NOAA API to get a forecast URL
 
@@ -234,6 +234,7 @@ class WeatherPublisher:
             # fields from the NOAA API response:
             # "probabilityOfPrecipitation", "dewpoint", and "relativeHumidity" have nested dictionaries - will this still work as written?
             data = {
+                "city": location.get("city", None), ###############################################################################this seems too easy, not sure if this belongs here
                 "name": period.get("name", None),
                 "summary": period.get("shortForecast", None),
                 "temperature": period.get("temperature", None),
@@ -254,4 +255,3 @@ if __name__ == "__main__":
     publisher = WeatherPublisher()
     publisher.run()
     
- # Where do I build the actual model? Do I need to now publish from my topic, outputting the information from the model?   

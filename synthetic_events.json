@@ -1,0 +1,54 @@
+[
+    {
+    "city": "Chicago",
+    "temperature": 67,
+    "precipitation": null
+    },
+    {
+    "city": "Los Angeles",
+    "temperature": 88,
+    "precipitation": 30
+    },
+    {
+    "city": "Los Angeles",
+    "temperature": 88,
+    "precipitation": 30
+    },
+    {
+    "city": "Indianapolis",
+    "temperature": 78,
+    "precipitation": 90
+    },
+    {"city": "New York",
+    "temperature": 59,
+    "precipitation": 60
+    },
+    {"city": "Dallas",
+    "temperature": 74,
+    "precipitation": 60
+    },
+    {"city": "Austin",
+    "temperature": 85,
+    "precipitation": 30
+    },
+    {"city": "San Francisco",
+    "temperature": 48,
+    "precipitation": 20
+    },
+    {"city": "Columbus",
+    "temperature": 65,
+    "precipitation": 50
+    },
+    {"city": "Detroit",
+    "temperature": 51,
+    "precipitation": 10
+    },
+    {"city": "Seattle",
+    "temperature": 61,
+    "precipitation": 95
+    },
+    {"city": "Denver",
+    "temperature": 71,
+    "precipitation": 15
+    }
+]
