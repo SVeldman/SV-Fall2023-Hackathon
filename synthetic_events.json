@@ -1,54 +1,222 @@
 [
     {
-    "city": "Chicago",
-    "temperature": 67,
-    "precipitation": null
+        "daytime": false,
+        "dewpoint": {
+        "unitCode": "wmoUnit:degC",
+        "value": 10
+        },
+        "end": "2023-10-15T06:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 86
+        },
+        "name": "Saturday Night",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": 80
+        },
+        "start": "2023-10-14T18:00:00-04:00",
+        "summary": "Rain",
+        "temperature": 52,
+        "units": "F",
+        "windspeed": "10 to 16 mph"
+      },
+    {
+        "daytime": true,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 10
+        },
+        "end": "2023-10-14T18:00:00-04:00",
+        "humidity": {
+            "unitCode": "wmoUnit:percent",
+            "value": 91
+        },
+        "name": "Saturday",
+        "precipitation": {
+            "unitCode": "wmoUnit:percent",
+            "value": 80
+        },
+        "start": "2023-10-14T06:00:00-04:00",
+        "summary": "Rain",
+        "temperature": 57,
+        "units": "F",
+        "windspeed": "5 to 10 mph"
     },
     {
-    "city": "Los Angeles",
-    "temperature": 88,
-    "precipitation": 30
-    },
-    {
-    "city": "Los Angeles",
-    "temperature": 88,
-    "precipitation": 30
-    },
-    {
-    "city": "Indianapolis",
-    "temperature": 78,
-    "precipitation": 90
-    },
-    {"city": "New York",
-    "temperature": 59,
-    "precipitation": 60
-    },
-    {"city": "Dallas",
-    "temperature": 74,
-    "precipitation": 60
-    },
-    {"city": "Austin",
-    "temperature": 85,
-    "precipitation": 30
-    },
-    {"city": "San Francisco",
-    "temperature": 48,
-    "precipitation": 20
-    },
-    {"city": "Columbus",
-    "temperature": 65,
-    "precipitation": 50
-    },
-    {"city": "Detroit",
-    "temperature": 51,
-    "precipitation": 10
-    },
-    {"city": "Seattle",
-    "temperature": 61,
-    "precipitation": 95
-    },
-    {"city": "Denver",
-    "temperature": 71,
-    "precipitation": 15
-    }
+        "daytime": false,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 7.222222222222222
+        },
+        "end": "2023-10-14T06:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 66
+        },
+        "name": "Tonight",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": null
+        },
+        "start": "2023-10-13T18:00:00-04:00",
+        "summary": "Mostly Cloudy",
+        "temperature": 53,
+        "units": "F",
+        "windspeed": "8 mph"
+      },
+      {
+        "daytime": true,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 5.555555555555555
+        },
+        "end": "2023-10-13T18:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 45
+        },
+        "name": "This Afternoon",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": null
+        },
+        "start": "2023-10-13T15:00:00-04:00",
+        "summary": "Sunny",
+        "temperature": 65,
+        "units": "F",
+        "windspeed": "10 mph"
+      },
+      {
+        "daytime": true,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 5.555555555555555
+        },
+        "end": "2023-10-13T18:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 45
+        },
+        "name": "This Afternoon",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": null
+        },
+        "start": "2023-10-13T15:00:00-04:00",
+        "summary": "Sunny",
+        "temperature": 65,
+        "units": "F",
+        "windspeed": "10 mph"
+      },
+      {
+        "daytime": true,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 8.88888888888889
+        },
+        "end": "2023-10-15T18:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 89
+        },
+        "name": "Sunday",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": 50
+        },
+        "start": "2023-10-15T06:00:00-04:00",
+        "summary": "Chance Light Rain",
+        "temperature": 61,
+        "units": "F",
+        "windspeed": "16 mph"
+      },
+      {
+        "daytime": false,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 6.666666666666667
+        },
+        "end": "2023-10-16T06:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 74
+        },
+        "name": "Sunday Night",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": null
+        },
+        "start": "2023-10-15T18:00:00-04:00",
+        "summary": "Partly Cloudy",
+        "temperature": 51,
+        "units": "F",
+        "windspeed": "10 to 14 mph"
+      },
+      {
+        "daytime": true,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 8.88888888888889
+        },
+        "end": "2023-10-16T18:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 81
+        },
+        "name": "Monday",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": null
+        },
+        "start": "2023-10-16T06:00:00-04:00",
+        "summary": "Mostly Cloudy then Slight Chance Rain Showers",
+        "temperature": 60,
+        "units": "F",
+        "windspeed": "12 mph"
+      },
+      {
+        "daytime": false,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 10
+        },
+        "end": "2023-10-17T06:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 86
+        },
+        "name": "Monday Night",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": 40
+        },
+        "start": "2023-10-16T18:00:00-04:00",
+        "summary": "Chance Rain Showers",
+        "temperature": 52,
+        "units": "F",
+        "windspeed": "12 mph"
+      },
+      {
+        "daytime": true,
+        "dewpoint": {
+          "unitCode": "wmoUnit:degC",
+          "value": 10
+        },
+        "end": "2023-10-17T18:00:00-04:00",
+        "humidity": {
+          "unitCode": "wmoUnit:percent",
+          "value": 90
+        },
+        "name": "Tuesday",
+        "precipitation": {
+          "unitCode": "wmoUnit:percent",
+          "value": 50
+        },
+        "start": "2023-10-17T06:00:00-04:00",
+        "summary": "Chance Rain Showers",
+        "temperature": 58,
+        "units": "F",
+        "windspeed": "13 mph"
+      }
 ]

@@ -17,25 +17,6 @@ warnings.filterwarnings("ignore")
 ME = "(https://rotational.io/data-playground/noaa/, veldman@uchicago.edu)"
 # Can we leave the data playground as the app URL? Or should this be a UChicago site or my GitHUb?
 
-"""
-Changed code to load location from json; to use manual locations change "self.locations = self.load_cities()" to "self.locations = self.LOCS" under parameters for def __init__
-
-LOCS = {
-    "new_york": {"lat": "40.7127837", "long": "-74.0059413"},
-    "los_angeles": {"lat": "40.7127837", "long": "-74.0059413"},
-    "chicago": {"lat": "41.8781136", "long": "-87.6297982"},
-    "philadelphia": {"lat": "29.7604267", "long": "-95.3698028"},
-    "houston": {"lat": "39.9525839", "long": "-75.1652215"},
-    "phoenix": {"lat": "33.4483771", "long": "-112.0740373"},
-    "san_antonio": {"lat": "29.4241219", "long": "-98.4936282"},
-    "san_diego": {"lat": "32.715738", "long": "-117.1610838"},
-    "dallas": {"lat": "32.7766642", "long": "-96.7969879"},
-    "san_jose": {"lat": "37.3382082", "long": "-121.8863286"},
-    "austin": {"lat": "30.267153", "long": "-97.7430608"},
-    "indianapolis": { "lat": "39.768403", "long": "-86.158068"},
-}
-"""
-
 
 class WeatherPublisher:
     """
@@ -67,7 +48,6 @@ class WeatherPublisher:
             app and contact info (aka User Agent details)
         """
 
-        # Pretty sure I did the API key right, but need help with some of these other parameters. Define as variables? Just plug in here?
         self.topic = topic
         self.interval = interval
         self.locations = self._load_cities() #add "_"?
@@ -75,7 +55,7 @@ class WeatherPublisher:
         self.user = {"User-Agent": user} #what do I use as my "user" name?
         self.datatype = "application/json"
 
-        keys = self._load_keys() #add "_"?
+        keys = self._load_keys()
 
         self.ensign = Ensign(
             client_id=keys["ClientID"],
@@ -230,18 +210,15 @@ class WeatherPublisher:
             raise Exception("unexpected response from forecast request, no periods")
 
         for period in periods:
-            # There's a lot available! For this example, we'll just parse out a few
-            # fields from the NOAA API response:
-            # "probabilityOfPrecipitation", "dewpoint", and "relativeHumidity" have nested dictionaries - will this still work as written?
             data = {
-                "city": location.get("city", None), ###############################################################################this seems too easy, not sure if this belongs here
+                #"city": location.get("city", None), ############### this broke the program, so not how to add city to the dictionary
                 "name": period.get("name", None),
                 "summary": period.get("shortForecast", None),
                 "temperature": period.get("temperature", None),
                 "units": period.get("temperatureUnit", None),
-                "precipitation": period.get("probabilityOfPrecipitation", None), # "precipitation": period.get("probabilityOfPrecipitation": "value", None)?
-                "dewpoint": period.get("dewpoint", None), #"dewpoint": period.get("dewpoint": "value", None)?
-                "humidity": period.get("relativeHumidity", None), #"humidity": period.get("relativeHumidity": "value", None)?
+                "precipitation": period.get("probabilityOfPrecipitation", None), 
+                "dewpoint": period.get("dewpoint", None),
+                "humidity": period.get("relativeHumidity", None),
                 "windspeed": period.get("windSpeed", None),
                 "daytime": period.get("isDaytime", None),
                 "start": period.get("startTime", None),

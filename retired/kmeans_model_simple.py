@@ -13,17 +13,12 @@ raw_lines = json.load(raw_data)
 #####
 
 results = dict()
-index = 0 ################ this will be replaced with "city" once I figure out how to pull that in
 for line in raw_lines:
-    results[index] = {
-        "start": line["start"],
-        "end": line["end"],
+    results[line["city"]] = {
         "temp": line["temperature"],
-        "precip": line["precipitation"]["value"],
+        "precip": line["precipitation"]#,
         #"cluster": ""
     }
-    index += 1 ################ this goes away once "city" is included
-
 
 X = []
 for city in results:
@@ -49,7 +44,7 @@ for i, (x, _) in enumerate(stream.iter_array(X)):
 #for i in results[city], clusters:
 #    results[city].update(clusters = clusters)
 
-results.update(clusters = clusters)
+results[city].update(clusters = clusters)
 
 print(results)
 
