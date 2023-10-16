@@ -50,7 +50,7 @@ class WeatherPublisher:
 
         self.topic = topic
         self.interval = interval
-        self.locations = self._load_cities() #add "_"?
+        self.locations = self._load_cities()
         self.url = "https://api.weather.gov/points/"
         self.user = {"User-Agent": user} #what do I use as my "user" name?
         self.datatype = "application/json"
@@ -134,7 +134,7 @@ class WeatherPublisher:
         weather reports for the `self.locations`.
 
         NOTE: this requires 2 calls to the NOAA API, per location:
-            - the first request provides a lat/long and retrieves forecast URL
+            - the first request provides a lat/long and retrieves forecast URL ############################ This request might be where to pull the city from if we can't attach the "city" value from "locations"?
             - the second request provides the forecast URL and gets forecast details
 
         Publish report data to the `self.topic`

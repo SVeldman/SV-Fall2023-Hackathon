@@ -8,3 +8,5 @@ dependencies_install.txt
 streamkmeans_model.py
 synthetic_events_simple.json
 kmeans_model_simple.json
+kmeans_model_individual_event_2.py
+kmeans_model_individual_event_1.py

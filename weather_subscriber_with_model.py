@@ -3,7 +3,10 @@ import asyncio
 
 from pyensign.ensign import Ensign
 from pyensign.api.v1beta1.ensign_pb2 import Nack
-
+from river import compose
+from river import cluster
+from river import stream
+from river import preprocessing
 
 class WeatherSubscriber:
     """
@@ -23,7 +26,7 @@ class WeatherSubscriber:
         """
         self.topic = topic
         
-        keys = self._load_keys() #add "_"?
+        keys = self._load_keys()
 
         self.ensign = Ensign(
             client_id=keys["ClientID"],
@@ -52,8 +55,29 @@ class WeatherSubscriber:
             print("Received invalid JSON in event payload:", event.data)
             await event.nack(Nack.Code.UNKNOWN_TYPE)
             return
+        
+#####
+        result = data
 
-        print("New weather report received:", data)
+        if data["precipitation"]["value"] is None:
+            data["precipitation"]["value"] = 0
+
+        X = [data["temperature"], data["precipitation"]["value"]]
+
+        model = compose.Pipeline(
+            preprocessing.StandardScaler(),
+            cluster.KMeans(n_clusters=4, halflife=0.1, sigma=3, seed=42)
+            )
+
+##### Code for the kmeans model was tested with a list of values as input;
+##### I am not sure how to adjust for one set of valued coming in at a time.
+        for i, (x, _) in enumerate(stream.iter_array(X)):
+            k_means = model.learn_one(x)
+            cluster = model.predict_one(x)
+            #clusters.append(cluster)
+            data.update(cluster = cluster)
+#####
+        print("New cluster results available:", data)
         await event.ack()
 
     async def subscribe(self):
@@ -68,10 +92,5 @@ if __name__ == "__main__":
     subscriber = WeatherSubscriber()
     subscriber.run()
 
-# unpack the "data" json into a dictionary
 
-# cluster using algorithm
-
-# create json with cluster assignments and averages
-
-# publish to "“weather-cluster-model” topic"    
+# now add publisher to publish to "“weather-cluster-model” topic"    
