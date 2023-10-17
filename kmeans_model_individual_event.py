@@ -19,10 +19,16 @@ model = compose.Pipeline(
     cluster.KMeans(n_clusters=4, halflife=0.1, sigma=3, seed=42)
     )
 
+k_means = model.learn_one(X)
+cluster = model.predict_one(X)
+result.update(cluster = cluster)
+
+"""
 for i, (x, _) in enumerate(stream.iter_array(X)):
     k_means = model.learn_one(x)
     cluster = model.predict_one(x)
     result.update(cluster = cluster)
+"""
 
 print(result)
 

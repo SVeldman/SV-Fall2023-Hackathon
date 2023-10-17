@@ -39,7 +39,7 @@ model = compose.Pipeline(
 
 clusters = []
 for i, (x, _) in enumerate(stream.iter_array(X)):
-    k_means = model.learn_one(x)
+    model = model.learn_one(x)
     cluster = model.predict_one(x)
     clusters.append(cluster)
 
