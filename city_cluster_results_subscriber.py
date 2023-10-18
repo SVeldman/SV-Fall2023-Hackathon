@@ -58,32 +58,6 @@ class ClusterSubscriber:
         
     '''
     This is where we would insert code to support reporting and dashboards.
-    
-    This code is intended to write some of the clustered cities and weather reports 
-    to a local file for visualization mock-ups:
-    
-        filename='city_cluster_results.json'
-        try:
-            with open(filename,'r+') as file:
-                file_data = json.load(file)
-                file_data["event records":].append(data)
-                file.seek(0)
-                json.dump(file_data, file, indent = 4)
-        except Exception as e:
-            raise OSError(f"unable to load record from file: ", e)
-
-    OR
-
-    async def write_json(self, data, filename='city_cluster_results.json'):
-        filename='city_cluster_results.json'
-        try:
-            with open(filename,'r+') as file:
-                file_data = json.load(file)
-                file_data["event records":].append(data)
-                file.seek(0)
-                json.dump(file_data, file, indent = 4)
-        except Exception as e:
-            raise OSError(f"unable to load record from file: ", e)
     '''
 
     async def subscribe(self):
