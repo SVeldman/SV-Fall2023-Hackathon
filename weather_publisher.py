@@ -8,22 +8,20 @@ import warnings
 from datetime import datetime
 
 import requests
+from requests import HTTPError, ConnectionError
 from pyensign.events import Event
 from pyensign.ensign import Ensign
 
-#Do I need this?
 warnings.filterwarnings("ignore")
 
 ME = "(https://rotational.io/data-playground/noaa/, veldman@uchicago.edu)"
-# Can we leave the data playground as the app URL? Or should this be a UChicago site or my GitHUb?
-
 
 class WeatherPublisher:
     """
     WeatherPublisher queries an API for weather updates and publishes events to Ensign.
     """
 
-    def __init__(self, topic="weather_forcasts-JSON", interval=60, user=ME):
+    def __init__(self, topic="weather-forecasts", interval=60, user=ME):
         """
         Initialize a WeatherPublisher by specifying a topic, locations, and other user-
         defined parameters.
@@ -52,7 +50,7 @@ class WeatherPublisher:
         self.interval = interval
         self.locations = self._load_cities()
         self.url = "https://api.weather.gov/points/"
-        self.user = {"User-Agent": user} #what do I use as my "user" name?
+        self.user = {"User-Agent": user}
         self.datatype = "application/json"
 
         keys = self._load_keys()
@@ -76,7 +74,7 @@ class WeatherPublisher:
             json_lines = json.load(f)
             for l in json_lines:
                 cities[l["city"]] = {
-                    #"city": str(l["city"]),############################################# I think this is redundant because "city" is already captured in the inner/nested dictionary
+                    "city": str(l["city"]),
                     "lat": str(l["latitude"]),
                     "long": str(l["longitude"])
                 }
@@ -104,7 +102,7 @@ class WeatherPublisher:
         """
         print(f"Event was not committed with error {nack.code}: {nack.error}")
 
-    def compose_query(self, location): ############################################################ How to make sure the city gets attached to the query results?
+    def compose_query(self, location):
         """
         Combine the base URI with the lat/long query params
 
@@ -130,11 +128,11 @@ class WeatherPublisher:
 
     async def recv_and_publish(self):
         """
-        At some interval (`self.interval`), ping the api.weather.com to get
+        At pre-defined interval (`self.interval`), ping the api.weather.com to get 
         weather reports for the `self.locations`.
 
         NOTE: this requires 2 calls to the NOAA API, per location:
-            - the first request provides a lat/long and retrieves forecast URL ############################ This request might be where to pull the city from if we can't attach the "city" value from "locations"?
+            - the first request provides a lat/long and retrieves forecast URL
             - the second request provides the forecast URL and gets forecast details
 
         Publish report data to the `self.topic`
@@ -143,20 +141,43 @@ class WeatherPublisher:
 
         while True:
             for location in self.locations.values():
-                # Note that we're making a different API call for each location
-                # TODO: can these be bundled so that we can make fewer calls?
+                # Call the API for each location
                 query = self.compose_query(location)
 
-                # If successful, the initial response returns a link you can use to
-                # retrieve the full hourly forecast
-                response = requests.get(query).json()
-                forecast_url = self.parse_forecast_link(response)
-                forecast = requests.get(forecast_url).json()
-                #city = location.get("city", None)########################################## Trying to attach city to query results. not sure if this belongs here?
+                # If successful, the initial response returns a link used to retrieve the full hourly forecast
+                try:
+                    response = requests.get(query).json()
+                except ConnectionError as e:
+                    print(e)
+                    continue
+                except HTTPError as e:
+                    print(e)
+                    continue
 
-                # After we retrieve and unpack the full hourly forecast, we can publish
-                # each period of the forecast as a new event
-                events = self.unpack_noaa_response(forecast)
+                forecast_url = self.parse_forecast_link(response)
+
+                try:
+                    forecast = requests.get(forecast_url).json()
+                except ConnectionError as e:
+                    print(e)
+                    continue
+                except HTTPError as e:
+                    print(e)
+                    continue
+                except Exception as e:
+                    print(e)
+                    continue
+
+                # Define "city" variable so that we can package city name with forecast data when we unpack the response
+                city = location.get("city", None)
+
+                # After we retrieve and unpack the full hourly forecast, publish each period of the forecast as a new event
+                try:
+                    events = self.unpack_noaa_response(forecast, city)
+                except Exception as e:
+                    print(e)
+                    continue
+
                 for event in events:
                     await self.ensign.publish(
                         self.topic,
@@ -166,7 +187,7 @@ class WeatherPublisher:
                     )
             await asyncio.sleep(self.interval)
 
-    def parse_forecast_link(self, message): ################################################ preliminary forecast response does have city/state info, is this where we grab it?
+    def parse_forecast_link(self, message):
         """
         Parse a preliminary forecast response from the NOAA API to get a forecast URL
 
@@ -187,14 +208,18 @@ class WeatherPublisher:
 
         forecast_link = properties.get("forecast", None)
         if forecast_link is None:
-            raise Exception("unexpected response from api call, no forecast")
-
+            #raise Exception("unexpected response from api call, no forecast")
+            print("unexpected response from api call, no forecast")
+            '''
+            This is not the most elegant way to handle this exception, but after adding the code
+            in the above section this exception was still crashing the publisher when it came up.
+            For now this fix allows the publisher to continue to run and prints the error for us to see.
+            '''
         return forecast_link
 
-    def unpack_noaa_response(self, message):
+    def unpack_noaa_response(self, message, city):
         """
-        Convert a message from the NOAA API to potentially multiple Ensign events,
-        and yield each.
+        Convert a message from the NOAA API to potentially multiple Ensign events and yield each.
 
         Parameters
         ----------
@@ -203,15 +228,15 @@ class WeatherPublisher:
         """
         properties = message.get("properties", None)
         if properties is None:
-            raise Exception("unexpected response from forecast request, no properties")
+            raise Exception("unexpected response from forecast request, no properties") #############
 
         periods = properties.get("periods", None)
         if periods is None:
-            raise Exception("unexpected response from forecast request, no periods")
+            raise Exception("unexpected response from forecast request, no periods") #################
 
         for period in periods:
             data = {
-                #"city": location.get("city", None), ############### this broke the program, so not how to add city to the dictionary
+                "city": city,
                 "name": period.get("name", None),
                 "summary": period.get("shortForecast", None),
                 "temperature": period.get("temperature", None),

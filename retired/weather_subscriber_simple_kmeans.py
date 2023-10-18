@@ -62,7 +62,7 @@ class WeatherSubscriber:
             return
         
                 
-#####
+
         if data["precipitation"]["value"] is None:
             data["precipitation"]["value"] = 0
 

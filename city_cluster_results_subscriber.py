@@ -1,5 +1,6 @@
 import json
 import asyncio
+import os
 
 from pyensign.ensign import Ensign
 from pyensign.api.v1beta1.ensign_pb2 import Nack
@@ -7,14 +8,14 @@ from pyensign.api.v1beta1.ensign_pb2 import Nack
 
 class ClusterSubscriber:
     """
-    WeatherSubscriber subscribes to an Ensign stream that the WeatherPublisher is
-    writing new weather reports to at some regular interval.
+    ClusterSubscriber subscribes to an Ensign stream that the WeatherSubscriber 
+    and  Clustering Model is writing new model results to.
     """
 
-    def __init__(self, topic="city-cluster-results"):
+    def __init__(self, topic="city-clusters"):
         """
-        Initialize the WeatherSubscriber, which will allow a data consumer to subscribe
-        to the topic that the publisher is writing weather data reports to
+        Initialize the ClusterSubscriber, which will allow a data consumer to subscribe
+        to the topic that the upstream subscriber/model/publisher is writing model results to
 
         Parameters
         ----------
@@ -52,11 +53,38 @@ class ClusterSubscriber:
             print("Received invalid JSON in event payload:", event.data)
             await event.nack(Nack.Code.UNKNOWN_TYPE)
             return
-
         print("New city cluster information recieved:", data)
         await event.ack()
+        
+    '''
+    This is where we would insert code to support reporting and dashboards.
+    
+    This code is intended to write some of the clustered cities and weather reports 
+    to a local file for visualization mock-ups:
+    
+        filename='city_cluster_results.json'
+        try:
+            with open(filename,'r+') as file:
+                file_data = json.load(file)
+                file_data["event records":].append(data)
+                file.seek(0)
+                json.dump(file_data, file, indent = 4)
+        except Exception as e:
+            raise OSError(f"unable to load record from file: ", e)
 
-        ### Write data to a local file for visualization
+    OR
+
+    async def write_json(self, data, filename='city_cluster_results.json'):
+        filename='city_cluster_results.json'
+        try:
+            with open(filename,'r+') as file:
+                file_data = json.load(file)
+                file_data["event records":].append(data)
+                file.seek(0)
+                json.dump(file_data, file, indent = 4)
+        except Exception as e:
+            raise OSError(f"unable to load record from file: ", e)
+    '''
 
     async def subscribe(self):
         """

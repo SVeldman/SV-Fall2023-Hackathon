@@ -27,7 +27,7 @@ class WeatherSubscriber:
     to the "city-cluster-results" topic.
     """
 
-    def __init__(self, topic="weather_forcasts-JSON", pub_topic="city-cluster-results"):
+    def __init__(self, topic="weather-forecasts", pub_topic="city-clusters"):
 
         self.topic = topic
         self.pub_topic = pub_topic
@@ -56,19 +56,18 @@ class WeatherSubscriber:
     
     def initialize_model(self):
         """
-        Initialize a river clustering model
-        Update the parameters as needed for your project
+        Initialize river clustering model and apply standard scaler with Pipeline.
+        Parameters of the model should be tuned to produce clusters most useful to individual applications/use cases.
         """
-        self.model = STREAMKMeans(chunk_size=3, n_clusters=2, halflife=0.5, sigma=1.5, seed=0)
         
-        #self.model = compose.Pipeline(
-        #    preprocessing.StandardScaler(),
-        #    STREAMKMeans(chunk_size=3, n_clusters=2, halflife=0.5, sigma=1.5, seed=0)
-        #    )
+        self.model = compose.Pipeline(
+            preprocessing.StandardScaler(),
+            STREAMKMeans(chunk_size=3, n_clusters=5, halflife=0.5, sigma=1.5, seed=0)
+            )
     
     async def handle_event(self, event):
         """
-        Decode and ack the event.
+        Decode and ack the event, input event into the clustering model:
         """
         try:
             data = json.loads(event.data)
@@ -80,35 +79,29 @@ class WeatherSubscriber:
         if data["precipitation"]["value"] is None:
             data["precipitation"]["value"] = 0
 
-        '''Replace "data" with "x" to limit fields being fed to model:
-        x = [data["temperature"], data["precipitation"]["value"]]
         '''
-        
-        if len(self.model.centers) > 1:
-            cluster = self.model.predict_one(data)
-#            print(cluster)
-        self.model = self.model.learn_one(data)
-        
-        #cluster = 1 #### Dummy cluster to remove once model is working
+        Here we use 'x' to control which fields from the forecast are being fed to the model:
+        '''
+        x = {"temperature": data["temperature"], "precipitation": data["precipitation"]["value"]}
 
-#        data.update(cluster = cluster)
-
-#line 94, in handle_event
-#    data.update(cluster = cluster)
-#                          ^^^^^^^
-#UnboundLocalError: cannot access local variable 'cluster' where it is not associated with a value
-
-
-
-#line 88, in handle_event
-#    cluster = self.model.predict_one(data)
-#              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#  File "C:\Users\sveldman\AppData\Local\anaconda3\Lib\site-packagester\streamkmeans.py", line 114, in predict_one
-#    return min(self.centers, key=get_distance)
-#                ^^^^'center' also threw an error in this spot when I was using pipeline for standard scaler.
+        '''
+        The first time the model is run it will be missing attributes and need to be treated differently:
+        '''
+        try:
+            if len(self.model.centers) > 1:
+                cluster = self.model.predict_one(x)
+                data.update(cluster = cluster)
+            self.model = self.model.learn_one(x)
+        except AttributeError:
+            self.model = self.model.learn_one(x)
+            cluster = self.model.predict_one(x)
+            data.update(cluster = cluster)
 
         print("New cluster results available:", data)
 
+        '''
+        Publish data to new topic once it has been assigned a cluster:
+        '''
         event = Event(json.dumps(data).encode("utf-8"), mimetype="application/json")
         await self.ensign.publish(self.pub_topic, event, on_ack=handle_ack, on_nack=handle_nack)
 
