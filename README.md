@@ -1,7 +1,9 @@
 # SV-Fall2023-Hackathon
 
+The topic for this hackathon was building real-time machine learning models using the publisher/subscriber (pub/sub) paradigm. I utilized Rotational Labs’ Ensign tool to access the national weather service’s public API. Using a variant of the K-Means algorithm designed for working with data streams, I built a model to provide real-time market segmentation of the top 1,000 most populace US cities based on current weather forecast. 
+
 Video Presentation of this Project:
-https://youtu.be/Ip0-NbHMXyk
+    https://youtu.be/Ip0-NbHMXyk
 
 Source for Cities JSON file:
     "1000 Largest US Cities By Population With Geographic Coordinates, in JSON"
